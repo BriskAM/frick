@@ -22,11 +22,6 @@ if [ -n "$ZSH_VERSION" ]; then
 		corrected_cmd=$(command frick run --cmd "$last_cmd" --exit "$last_exit")
 		
 		if [ -n "$corrected_cmd" ]; then
-			# Clean up history: delete frick and the failed command
-			if [[ "$HISTCMD" =~ ^[0-9]+$ ]]; then
-				history -d $(( HISTCMD - 1 )) 2>/dev/null
-				history -d $(( HISTCMD )) 2>/dev/null
-			fi
 			print -s "$corrected_cmd"
 			eval "$corrected_cmd"
 		fi
