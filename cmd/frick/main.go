@@ -112,11 +112,30 @@ func handleRun() {
 		}
 	}
 
-	// Fetch suggestions from Gemma
-	suggestions, err := gemini.GetSuggestions(cfg.ApiKey, cfg.Model, cfg.ApiEndpoint, cfg.SystemPrompt, *cmdArg, *exitArg, lastSuggestion, lastExit)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error getting suggestions: %v\n", err)
-		os.Exit(1)
+	var suggestions []gemini.Suggestion
+	var loadedFromCache bool
+
+	// Load suggestions from offline cache
+	cache, err := config.LoadCache()
+	if err == nil {
+		if entry, exists := cache.Entries[*cmdArg]; exists {
+			for _, s := range entry.Suggestions {
+				suggestions = append(suggestions, gemini.Suggestion{
+					Command:     s.Command,
+					SafetyLevel: s.SafetyLevel,
+				})
+			}
+			loadedFromCache = true
+		}
+	}
+
+	// Fetch suggestions from AI model if cache miss
+	if !loadedFromCache {
+		suggestions, err = gemini.GetSuggestions(cfg.ApiKey, cfg.Model, cfg.ApiEndpoint, cfg.SystemPrompt, *cmdArg, *exitArg, lastSuggestion, lastExit)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error getting suggestions: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	// Apply local safety overrides
@@ -156,6 +175,19 @@ func handleRun() {
 		if err != nil || !confirmed {
 			os.Exit(0)
 		}
+	}
+
+	// Save to offline cache if we freshly fetched from the API
+	if !loadedFromCache && len(suggestions) > 0 {
+		var cachedSugs []config.CachedSuggestion
+		for _, s := range suggestions {
+			cachedSugs = append(cachedSugs, config.CachedSuggestion{
+				Command:     s.Command,
+				SafetyLevel: s.SafetyLevel,
+			})
+		}
+		cache.Entries[*cmdArg] = config.CacheEntry{Suggestions: cachedSugs}
+		_ = config.SaveCache(cache)
 	}
 
 	// Save this chosen suggestion for future double-frick checks
