@@ -113,7 +113,7 @@ func handleRun() {
 	}
 
 	// Fetch suggestions from Gemma
-	suggestions, err := gemini.GetSuggestions(cfg.ApiKey, cfg.Model, cfg.ApiEndpoint, *cmdArg, *exitArg, lastSuggestion, lastExit)
+	suggestions, err := gemini.GetSuggestions(cfg.ApiKey, cfg.Model, cfg.ApiEndpoint, cfg.SystemPrompt, *cmdArg, *exitArg, lastSuggestion, lastExit)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error getting suggestions: %v\n", err)
 		os.Exit(1)

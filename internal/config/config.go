@@ -14,6 +14,7 @@ type Config struct {
 	Model           string            `json:"model"`
 	ApiEndpoint     string            `json:"api_endpoint,omitempty"`
 	SafetyOverrides map[string]string `json:"safety_overrides,omitempty"`
+	SystemPrompt    string            `json:"system_prompt,omitempty"`
 }
 
 // GetConfigPath returns the absolute path to ~/.config/frick/config.json

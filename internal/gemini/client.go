@@ -97,14 +97,14 @@ type GroqResponsePayload struct {
 	} `json:"choices"`
 }
 
-func GetSuggestions(apiKey string, model string, apiEndpoint string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
+func GetSuggestions(apiKey string, model string, apiEndpoint string, systemPrompt string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
 	if strings.HasPrefix(apiKey, "gsk_") {
-		return getGroqSuggestions(apiKey, model, apiEndpoint, cmd, exitCode, lastSuggestion, lastExit)
+		return getGroqSuggestions(apiKey, model, apiEndpoint, systemPrompt, cmd, exitCode, lastSuggestion, lastExit)
 	}
-	return getGeminiSuggestions(apiKey, model, apiEndpoint, cmd, exitCode, lastSuggestion, lastExit)
+	return getGeminiSuggestions(apiKey, model, apiEndpoint, systemPrompt, cmd, exitCode, lastSuggestion, lastExit)
 }
 
-func getGeminiSuggestions(apiKey string, model string, apiEndpoint string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
+func getGeminiSuggestions(apiKey string, model string, apiEndpoint string, systemPrompt string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
 	pwd, _ := os.Getwd()
 
 	var files []string
@@ -133,7 +133,9 @@ func getGeminiSuggestions(apiKey string, model string, apiEndpoint string, cmd s
 		shell = filepath.Base(shell)
 	}
 
-	sysInstrText := `You are 'frick', a CLI helper tool that fixes mistyped terminal commands.
+	sysInstrText := systemPrompt
+	if sysInstrText == "" {
+		sysInstrText = `You are 'frick', a CLI helper tool that fixes mistyped terminal commands.
 Your job is to analyze a failed or typoed terminal command and suggest up to 3 corrected command alternatives.
 
 For each suggestion, determine its safety level:
@@ -142,6 +144,7 @@ For each suggestion, determine its safety level:
 - DANGER: highly destructive, irreversible, or superuser commands (e.g., 'rm', 'dd', 'mkfs', 'sudo', 'git reset --hard').
 
 Ensure you return a valid JSON object matching the requested schema.`
+	}
 
 	promptText := fmt.Sprintf(`Analyze this failed command:
 - Command run: %s
@@ -249,7 +252,7 @@ Ensure you return a valid JSON object matching the requested schema.`
 	return finalResult.Suggestions, nil
 }
 
-func getGroqSuggestions(apiKey string, model string, apiEndpoint string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
+func getGroqSuggestions(apiKey string, model string, apiEndpoint string, systemPrompt string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
 	if model == "" || model == "gemma-4-31b-it" {
 		model = "qwen/qwen3.6-27b"
 	}
@@ -282,7 +285,9 @@ func getGroqSuggestions(apiKey string, model string, apiEndpoint string, cmd str
 		shell = filepath.Base(shell)
 	}
 
-	sysInstrText := `You are 'frick', a CLI helper tool that fixes mistyped terminal commands.
+	sysInstrText := systemPrompt
+	if sysInstrText == "" {
+		sysInstrText = `You are 'frick', a CLI helper tool that fixes mistyped terminal commands.
 Your job is to analyze a failed or typoed terminal command and suggest up to 3 corrected command alternatives.
 
 For each suggestion, determine its safety level:
@@ -300,6 +305,7 @@ Respond ONLY with a valid JSON object matching this schema. Do not wrap the resp
     }
   ]
 }`
+	}
 
 	promptText := fmt.Sprintf(`Analyze this failed command:
 - Command run: %s
