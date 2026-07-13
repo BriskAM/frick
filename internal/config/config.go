@@ -10,8 +10,9 @@ import (
 const DefaultModel = "gemma-4-31b-it"
 
 type Config struct {
-	ApiKey string `json:"api_key"`
-	Model  string `json:"model"`
+	ApiKey      string `json:"api_key"`
+	Model       string `json:"model"`
+	ApiEndpoint string `json:"api_endpoint,omitempty"`
 }
 
 // GetConfigPath returns the absolute path to ~/.config/frick/config.json

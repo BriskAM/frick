@@ -97,14 +97,14 @@ type GroqResponsePayload struct {
 	} `json:"choices"`
 }
 
-func GetSuggestions(apiKey string, model string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
+func GetSuggestions(apiKey string, model string, apiEndpoint string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
 	if strings.HasPrefix(apiKey, "gsk_") {
-		return getGroqSuggestions(apiKey, model, cmd, exitCode, lastSuggestion, lastExit)
+		return getGroqSuggestions(apiKey, model, apiEndpoint, cmd, exitCode, lastSuggestion, lastExit)
 	}
-	return getGeminiSuggestions(apiKey, model, cmd, exitCode, lastSuggestion, lastExit)
+	return getGeminiSuggestions(apiKey, model, apiEndpoint, cmd, exitCode, lastSuggestion, lastExit)
 }
 
-func getGeminiSuggestions(apiKey string, model string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
+func getGeminiSuggestions(apiKey string, model string, apiEndpoint string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
 	pwd, _ := os.Getwd()
 
 	var files []string
@@ -208,7 +208,11 @@ Ensure you return a valid JSON object matching the requested schema.`
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", model, apiKey)
+	baseUrl := "https://generativelanguage.googleapis.com"
+	if apiEndpoint != "" {
+		baseUrl = strings.TrimSuffix(apiEndpoint, "/")
+	}
+	url := fmt.Sprintf("%s/v1beta/models/%s:generateContent?key=%s", baseUrl, model, apiKey)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBytes))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
@@ -245,7 +249,7 @@ Ensure you return a valid JSON object matching the requested schema.`
 	return finalResult.Suggestions, nil
 }
 
-func getGroqSuggestions(apiKey string, model string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
+func getGroqSuggestions(apiKey string, model string, apiEndpoint string, cmd string, exitCode int, lastSuggestion string, lastExit int) ([]Suggestion, error) {
 	if model == "" || model == "gemma-4-31b-it" {
 		model = "qwen/qwen3.6-27b"
 	}
@@ -337,7 +341,12 @@ Respond ONLY with a valid JSON object matching this schema. Do not wrap the resp
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewBuffer(jsonBytes))
+	baseUrl := "https://api.groq.com"
+	if apiEndpoint != "" {
+		baseUrl = strings.TrimSuffix(apiEndpoint, "/")
+	}
+	url := fmt.Sprintf("%s/openai/v1/chat/completions", baseUrl)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBytes))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
