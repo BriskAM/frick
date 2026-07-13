@@ -18,13 +18,20 @@
 
 ## Installation
 
-### 1. Fast Installation (macOS & Linux)
+### 1. Homebrew Installation (macOS & Linux)
+Install easily via Homebrew:
+```bash
+brew tap BriskAM/frick
+brew install frick
+```
+
+### 2. Fast Installation (macOS & Linux)
 Install instantly via curl:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/BriskAM/frick/main/install.sh | bash
 ```
 
-### 2. Manual Build from Source
+### 3. Manual Build from Source
 If you prefer to build manually:
 ```bash
 git clone https://github.com/BriskAM/frick.git
@@ -33,13 +40,13 @@ go build -o frick cmd/frick/main.go
 mv frick /usr/local/bin/
 ```
 
-### 3. Configure API Key
+### 4. Configure API Key
 Configure your Gemini or Groq API key:
 ```bash
 frick configure
 ```
 
-### 4. Custom API Endpoint (Optional)
+### 5. Custom API Endpoint (Optional)
 If you want to use a proxy, local gateway (like Ollama), or enterprise custom endpoint, edit `~/.config/frick/config.json` and add `api_endpoint`:
 ```json
 {
@@ -49,7 +56,21 @@ If you want to use a proxy, local gateway (like Ollama), or enterprise custom en
 }
 ```
 
-### 5. Setup Shell Integration
+### 6. Local Safety Overrides (Optional)
+You can configure keyword matches to override the AI's safety estimation and force certain commands to be marked as `DANGER` (requiring manual `y/n` confirmation). Edit `~/.config/frick/config.json` and add `safety_overrides`:
+```json
+{
+  "api_key": "YOUR_API_KEY",
+  "model": "gemini-3.1-flash-lite",
+  "safety_overrides": {
+    "deploy": "DANGER",
+    "prod-db": "DANGER",
+    "rm": "DANGER"
+  }
+}
+```
+
+### 7. Setup Shell Integration
 Add the following line to your `~/.zshrc` (for Zsh) or `~/.bashrc` (for Bash):
 ```bash
 eval "$(frick init)"
