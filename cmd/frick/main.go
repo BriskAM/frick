@@ -152,19 +152,8 @@ func handleRun() {
 
 	// Handle safety confirmation
 	if chosen.SafetyLevel == "DANGER" {
-		fmt.Fprintf(tty, "\n\x1b[31;1mDANGER:\x1b[0m This command is classified as dangerous.\n")
-		fmt.Fprintf(tty, "Are you sure you want to run it? Type \x1b[31;1myes\x1b[0m (or \x1b[31;1my\x1b[0m) and press Enter: ")
-
-		// Set tty back to normal input mode briefly to read string
-		reader := bufio.NewReader(tty)
-		text, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Fprintln(tty, "\nAborted.")
-			os.Exit(0)
-		}
-		text = strings.TrimSpace(strings.ToLower(text))
-		if text != "y" && text != "yes" {
-			fmt.Fprintln(tty, "Aborted.")
+		confirmed, err := readDangerConfirm(tty)
+		if err != nil || !confirmed {
 			os.Exit(0)
 		}
 	}
@@ -293,5 +282,62 @@ func clearMenu(tty *os.File) {
 			fmt.Fprint(tty, "\x1b[F\x1b[K")
 		}
 		drewLines = 0
+	}
+}
+
+func readDangerConfirm(tty *os.File) (bool, error) {
+	// Put tty in raw mode
+	oldState, err := term.MakeRaw(int(tty.Fd()))
+	if err != nil {
+		return false, err
+	}
+	defer term.Restore(int(tty.Fd()), oldState)
+
+	fmt.Fprint(tty, "\r\n\x1b[31;1mDANGER:\x1b[0m This command is classified as dangerous.\r\n")
+	fmt.Fprint(tty, "Are you sure you want to run it? Type \x1b[31;1myes\x1b[0m (or \x1b[31;1my\x1b[0m), Enter to run, or \x1b[33mEsc\x1b[0m to cancel: ")
+
+	var buf []byte
+	var readBuf [1]byte
+
+	for {
+		n, err := tty.Read(readBuf[:])
+		if err != nil || n == 0 {
+			return false, err
+		}
+
+		b := readBuf[0]
+
+		// Escape key (0x1b) or Ctrl+C (0x03) -> cancel
+		if b == 0x1b || b == 0x03 {
+			fmt.Fprint(tty, "\r\nAborted.\r\n")
+			return false, nil
+		}
+
+		// Enter key (Carriage Return 0x0d or Line Feed 0x0a)
+		if b == 0x0d || b == 0x0a {
+			fmt.Fprint(tty, "\r\n")
+			val := strings.TrimSpace(strings.ToLower(string(buf)))
+			if val == "y" || val == "yes" {
+				return true, nil
+			}
+			fmt.Fprint(tty, "Aborted.\r\n")
+			return false, nil
+		}
+
+		// Backspace key (0x7f or 0x08)
+		if b == 0x7f || b == 0x08 {
+			if len(buf) > 0 {
+				buf = buf[:len(buf)-1]
+				// Backspace, overwrite with space, backspace again to erase on screen
+				fmt.Fprint(tty, "\b \b")
+			}
+			continue
+		}
+
+		// Printable ASCII characters (0x20 to 0x7e)
+		if b >= 0x20 && b <= 0x7e {
+			buf = append(buf, b)
+			fmt.Fprint(tty, string(b))
+		}
 	}
 }
