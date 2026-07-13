@@ -119,6 +119,17 @@ func handleRun() {
 		os.Exit(1)
 	}
 
+	// Apply local safety overrides
+	if len(cfg.SafetyOverrides) > 0 {
+		for i := range suggestions {
+			for pattern, level := range cfg.SafetyOverrides {
+				if strings.Contains(suggestions[i].Command, pattern) {
+					suggestions[i].SafetyLevel = strings.ToUpper(level)
+				}
+			}
+		}
+	}
+
 	if len(suggestions) == 0 {
 		os.Exit(0)
 	}
