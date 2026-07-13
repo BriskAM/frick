@@ -247,36 +247,31 @@ func drawMenu(tty *os.File, suggestions []gemini.Suggestion, selected int) {
 			prefix = "\x1b[36m> \x1b[0m"
 		}
 
-		var safetyStr string
 		var cmdStr string
 		switch s.SafetyLevel {
 		case "SAFE":
-			safetyStr = "\x1b[32m[SAFE]\x1b[0m"
 			if i == selected {
 				cmdStr = fmt.Sprintf("\x1b[1;32m%s\x1b[0m", s.Command)
 			} else {
 				cmdStr = fmt.Sprintf("\x1b[32m%s\x1b[0m", s.Command)
 			}
 		case "WARNING":
-			safetyStr = "\x1b[33m[WARNING]\x1b[0m"
 			if i == selected {
 				cmdStr = fmt.Sprintf("\x1b[1;33m%s\x1b[0m", s.Command)
 			} else {
 				cmdStr = fmt.Sprintf("\x1b[33m%s\x1b[0m", s.Command)
 			}
 		case "DANGER":
-			safetyStr = "\x1b[31m[DANGER]\x1b[0m"
 			if i == selected {
 				cmdStr = fmt.Sprintf("\x1b[1;31m%s\x1b[0m", s.Command)
 			} else {
 				cmdStr = fmt.Sprintf("\x1b[31m%s\x1b[0m", s.Command)
 			}
 		default:
-			safetyStr = fmt.Sprintf("[%s]", s.SafetyLevel)
 			cmdStr = s.Command
 		}
 
-		fmt.Fprintf(tty, "%s%s %s\n", prefix, cmdStr, safetyStr)
+		fmt.Fprintf(tty, "%s%s\n", prefix, cmdStr)
 		drewLines++
 	}
 }
