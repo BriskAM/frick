@@ -238,7 +238,7 @@ func drawMenu(tty *os.File, suggestions []gemini.Suggestion, selected int) {
 		}
 	}
 
-	fmt.Fprintln(tty, "\x1b[35m?\x1b[0m Select correction (Enter to run, Ctrl+C to cancel):")
+	fmt.Fprint(tty, "\x1b[35m?\x1b[0m Select correction (Enter to run, Ctrl+C to cancel):\r\n")
 	drewLines = 1
 
 	for i, s := range suggestions {
@@ -271,7 +271,7 @@ func drawMenu(tty *os.File, suggestions []gemini.Suggestion, selected int) {
 			cmdStr = s.Command
 		}
 
-		fmt.Fprintf(tty, "%s%s\n", prefix, cmdStr)
+		fmt.Fprintf(tty, "%s%s\r\n", prefix, cmdStr)
 		drewLines++
 	}
 }
