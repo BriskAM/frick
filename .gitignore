@@ -1,0 +1,19 @@
+# Binaries
+/frick
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
