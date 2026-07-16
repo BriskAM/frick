@@ -64,8 +64,8 @@ fi
 # Print shell integration reminder
 echo ""
 echo "=== Shell Integration ==="
-echo "Add the following line to your ~/.zshrc or ~/.bashrc to enable the frick command:"
-echo "  eval \"\$(frick init)\""
+echo "To automatically configure your shell, run the following command:"
+echo "  [ -n \"\$ZSH_VERSION\" ] && echo 'eval \"\$(frick init)\"' >> ~/.zshrc || echo 'eval \"\$(frick init)\"' >> ~/.bashrc"
 echo ""
 echo "Then, configure your API key:"
 echo "  frick configure"
