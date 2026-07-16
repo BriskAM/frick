@@ -66,6 +66,12 @@ elif [ -n "$BASH_VERSION" ]; then
 else
 	# Fallback for other POSIX shells
 	frick() {
+		# If arguments are passed, forward them directly to the binary
+		if [ "$#" -gt 0 ]; then
+			command frick "$@"
+			return
+		fi
+
 		local last_exit=$?
 		local last_cmd=$(fc -ln -1 2>/dev/null || history 1 2>/dev/null | sed -e "s/^[ ]*[0-9]*[ ]*//")
 		last_cmd=$(echo "$last_cmd" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
