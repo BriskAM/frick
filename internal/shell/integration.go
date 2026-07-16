@@ -29,7 +29,7 @@ if [ -n "$ZSH_VERSION" ]; then
 elif [ -n "$BASH_VERSION" ]; then
 	frick() {
 		local last_exit=$?
-		local last_cmd=$(history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//")
+		local last_cmd=$(fc -ln -1)
 		# Trim leading/trailing whitespace
 		last_cmd=$(echo "$last_cmd" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 		
