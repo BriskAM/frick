@@ -8,6 +8,12 @@ func GetIntegrationScript() string {
 # frick shell integration
 if [ -n "$ZSH_VERSION" ]; then
 	frick() {
+		# If arguments are passed, forward them directly to the binary
+		if [ "$#" -gt 0 ]; then
+			command frick "$@"
+			return
+		fi
+
 		local last_exit=$?
 		local last_cmd=$(fc -ln -1)
 		# Trim leading/trailing whitespace
@@ -28,6 +34,12 @@ if [ -n "$ZSH_VERSION" ]; then
 	}
 elif [ -n "$BASH_VERSION" ]; then
 	frick() {
+		# If arguments are passed, forward them directly to the binary
+		if [ "$#" -gt 0 ]; then
+			command frick "$@"
+			return
+		fi
+
 		local last_exit=$?
 		local last_cmd=$(fc -ln -1)
 		# Trim leading/trailing whitespace
