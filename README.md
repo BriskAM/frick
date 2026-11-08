@@ -25,8 +25,9 @@ Install easily via Homebrew:
 ```bash
 brew tap BriskAM/frick
 brew install frick
-bash
 ```
+
+If Homebrew refuses the tap as untrusted, run `brew trust BriskAM/frick` first, or use one of the other install methods below.
 
 ### 2. Fast Installation (macOS & Linux)
 Install instantly via curl:
