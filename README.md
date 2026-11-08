@@ -1,5 +1,7 @@
 # frick
 
+**[Demo, architecture diagram and install steps](https://akshitmehta.pages.dev/projects/frick/)**
+
 `frick` is a lightning-fast command-line utility inspired by `thefuck`. Written in Go, it runs with sub-millisecond start times, leverages Gemini API / Groq API models to fix mistyped terminal commands, and integrates with Zsh/Bash shells.
 
 ## Features
@@ -23,6 +25,7 @@ Install easily via Homebrew:
 ```bash
 brew tap BriskAM/frick
 brew install frick
+bash
 ```
 
 ### 2. Fast Installation (macOS & Linux)
